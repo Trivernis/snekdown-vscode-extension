@@ -13,7 +13,7 @@
 		"url": "https://github.com/Trivernis/snekdown-vscode-extension.git"
 	},
 	"description": "Preview and commands for the snekdown markdown flavour",
-	"version": "0.9.1",
+	"version": "0.9.2",
 	"engines": {
 		"vscode": "^1.52.0"
 	},

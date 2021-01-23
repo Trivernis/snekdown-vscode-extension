@@ -75,7 +75,7 @@ export class SnekdownWrapper {
         switch (os.platform()) {
             case 'win32':
                 execPath = this.buildExecutablePath(SNEKDOWN_FILE_WINDOWS);
-                await fetch(SNEKDOWN_FILE_WINDOWS).then(res => {
+                await fetch(SNEKDOWN_URL_WINDOWS).then(res => {
                     fs.writeFileSync(execPath, res.buffer);
                 });
                 this.executable = execPath;
