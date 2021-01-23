@@ -1,5 +1,4 @@
-import {getApi, FileDownloader} from "@microsoft/vscode-file-downloader-api";
-import { exec, execFile } from "child_process";
+import { exec, execFile, spawn } from "child_process";
 import { chmodSync } from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -70,7 +69,6 @@ export class SnekdownWrapper {
      * Detects or downloads the snekdown executable
      */
     public async download () {
-        const fileDownloader: FileDownloader = await getApi();
 
         let execPath: string;
 
@@ -117,16 +115,21 @@ export class SnekdownWrapper {
             cwd = vscode.workspace.workspaceFolders[0].uri.fsPath;
         }
         return new Promise((res, rej) => {
-            let process = execFile(this.executable, [command, ...args], {cwd}, (err, stdout, stderr) => {
-                if (err) {
-                    rej(err);
+            let child = spawn(this.executable, [command, ...args], {cwd});
+            let stdout = "";
+            child.stdout.on("data", data => {
+                stdout += data as string;
+            });
+            child.stderr.on("data", data => {
+                console.log("Snekdown: ", "" + data as string);
+            });
+            child.on("exit", code => {
+                if (code != 0) {
+                    rej(new Error("Failed to execute command. Open the developer console for more information."))
+                } else {
+                    res(stdout)
                 }
-                if (process.exitCode !== 0) {
-                    rej(stderr);
-                }
-                console.log(stderr);
-                res(stdout);
-            }); 
+            });
         });
     }
-} 
+}
