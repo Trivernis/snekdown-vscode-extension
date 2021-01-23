@@ -9,16 +9,31 @@ let snekdownWebview: SnekdownWebView;
 
 export async function activate(context: vscode.ExtensionContext) {
 	const snekdownWrapper = new SnekdownWrapper(context);
-	await snekdownWrapper.download();
+
+	await vscode.window.withProgress({
+		location: vscode.ProgressLocation.Window,
+		title: "Downloading Snekdown"
+	}, async () => {
+		await snekdownWrapper.download()
+	})
 
 	context.subscriptions.push(vscode.commands.registerCommand('snekdown.init', async () => {
 		await snekdownWrapper.init();
 		vscode.window.showInformationMessage("Snekdown Project initialized.");
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('snekdown.clear-ache', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('snekdown.clear-cache', async () => {
 		await snekdownWrapper.clearCache();
 		vscode.window.showInformationMessage("Snekdown cache cleared.");
+	}))
+
+	context.subscriptions.push(vscode.commands.registerCommand('snekdown.update-binary', async () => {
+		await vscode.window.withProgress({
+			location: vscode.ProgressLocation.Window,
+			title: "Downloading Snekdown"
+		}, async () => {
+			await snekdownWrapper.download(true)
+		});
 	}))
 
 	context.subscriptions.push(vscode.commands.registerTextEditorCommand('snekdown.preview', async () => {
@@ -43,7 +58,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			value: placeholderOutput,
 		});
 		if (outputFile) {
-			await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: "Rendering HTML" }, async () => {
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Window,
+				title: "Rendering HTML"
+			}, async () => {
 				await snekdownWrapper.renderToFile(inputFile, outputFile as string, RenderingFormat.html);
 			});
 		}
@@ -57,7 +75,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			value: placeholderOutput,
 		});
 		if (outputFile) {
-			await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: "Rendering PDF" }, async () => {
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Window,
+				title: "Rendering PDF"
+			}, async () => {
 				await snekdownWrapper.renderToFile(inputFile, outputFile as string, RenderingFormat.pdf);
 			});
 		}

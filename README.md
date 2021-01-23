@@ -18,6 +18,18 @@ downloads the latest one.
 
 ## Release Notes
 
-### 1.0.0
+### 0.9.3
+
+- Add update command
+
+### 0.9.2
+
+- Fix downloader buffer behaviour
+
+### 0.9.1
+
+- Fix windows download path
+
+### 0.9.0
 
 Initial release of the snekdown extension

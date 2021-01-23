@@ -68,33 +68,49 @@ export class SnekdownWrapper {
     /**
      * Detects or downloads the snekdown executable
      */
-    public async download () {
+    public async download (force: boolean = false) {
 
         let execPath: string;
+        let res: any;
 
         switch (os.platform()) {
             case 'win32':
                 execPath = this.buildExecutablePath(SNEKDOWN_FILE_WINDOWS);
-                await fetch(SNEKDOWN_URL_WINDOWS).then(res => {
-                    fs.writeFileSync(execPath, res.buffer);
-                });
                 this.executable = execPath;
+
+                await SnekdownWrapper.downloadFile(SNEKDOWN_URL_WINDOWS, this.executable, force);
                 break;
             case 'linux':
-                if (fs.existsSync("/usr/bin/snekdown")) {
+                if (fs.existsSync("/usr/bin/snekdown") && false) {
                     this.executable = "/usr/bin/snekdown";
                     break;
                 }
                 execPath = this.buildExecutablePath(SNEKDOWN_FILE_LINUX);
-                await fetch(SNEKDOWN_URL_LINUX).then(res => {
-                    fs.writeFileSync(execPath, res.buffer);
-                });
                 this.executable = execPath;
+                await SnekdownWrapper.downloadFile(SNEKDOWN_URL_LINUX, this.executable, force);
+
                 chmodSync(execPath, "555");
                 break;
             default:
                 throw new Error("OS Platform not supported.");
         }
+    }
+    
+    /**
+     * Downloads a file if it doesn't exist
+     * @param url 
+     * @param path 
+     * @param force 
+     */
+    private static async downloadFile(url: string, path: string, force: boolean = false) {
+        if (fs.existsSync(path)) {
+            if (!force) {
+                return;
+            }
+            fs.unlinkSync(path);
+        }
+        const res = await fetch(url);
+        fs.writeFileSync(path, await res.buffer());
     }
 
     /**
